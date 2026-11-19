@@ -1,0 +1,26 @@
+[project]
+name = "thinkpad-ec-power-sentinel"
+version = "1.0.0"
+description = "ThinkPad Embedded Controller & ACPI Power Delivery Diagnostic and Recovery Suite for Linux"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Moises Mansilla F.", email = "mmansillaf@gmail.com" }
+]
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: System :: Hardware",
+]
+
+[project.scripts]
+thinkpad-sentinel = "src.sentinel:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
