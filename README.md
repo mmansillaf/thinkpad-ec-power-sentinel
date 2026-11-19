@@ -67,6 +67,31 @@ flowchart TD
 - **Detección de tormentas de eventos EC**: Rastreo en logs de kernel de bloqueos en `acpi_ec_event_processor`.
 - **Ajuste dinámico ACPI**: Conmutación de `ec_event_clearing` a modo `event` y activación de `ec_busy_polling` para erradicar retrasos de interrupción tras suspensión S3.
 - **Normalización de umbrales**: Limpieza de registros corruptos en `charge_control_start_threshold` y `charge_control_end_threshold`.
+- **Blindaje Kernel anti-bloqueo BIOS**: Resuelve el desbordamiento de eventos sin necesidad de alterar menús UEFI en equipos con contraseña de supervisor bloqueada.
+
+## Blindaje Permanente sin Acceso a BIOS (Supervisor Password Workaround)
+
+En equipos adquiridos de segunda mano con contraseña de supervisor en el BIOS/UEFI, el blindaje se ejecuta 100% en el plano del kernel Linux:
+
+### 1. Parámetros de Arranque en GRUB
+```bash
+sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="acpi.ec_event_clearing=event acpi.ec_busy_polling=1 /' /etc/default/grub
+sudo update-grub
+```
+
+### 2. Hook de Reanudación Systemd-Sleep
+```bash
+sudo tee /lib/systemd/system-sleep/99_thinkpad_power_resume.sh << 'EOF'
+#!/bin/sh
+case "$1" in
+  post)
+    udevadm trigger --subsystem-match=power_supply
+    udevadm trigger --subsystem-match=typec
+    ;;
+esac
+EOF
+sudo chmod +x /lib/systemd/system-sleep/99_thinkpad_power_resume.sh
+```
 
 ## Uso Rápido
 
